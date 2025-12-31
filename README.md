@@ -20,12 +20,8 @@ This project is a tool that automatically generates complete, runnable LangChain
 
 2.  **设置环境变量：**
     此生成器需要 API 凭据才能运行。
-    *   在项目根目录下创建一个名为 `.env` 的文件。
-    *   添加以下内容，并将占位符值替换为您的实际凭据：
-        ```
-        API_BASE_URL="your_api_base_url_here"
-        API_KEY="your_api_key_here"
-        ```
+    *   将 `.env.example` 文件复制一份并重命名为 `.env`。
+    *   打开 `.env` 文件，并将占位符值替换为您的实际凭据。
 
 3.  **运行生成器：**
     从命令行执行生成器脚本，并提供一个提示：
@@ -51,12 +47,8 @@ This project is a tool that automatically generates complete, runnable LangChain
 
 2.  **Set Up Environment Variables:**
     This generator requires API credentials to function.
-    *   Create a file named `.env` in the root of this project.
-    *   Add the following lines, replacing the placeholder values with your actual credentials:
-        ```
-        API_BASE_URL="your_api_base_url_here"
-        API_KEY="your_api_key_here"
-        ```
+    *   Copy the `.env.example` file to a new file named `.env`.
+    *   Open the `.env` file and fill in your actual credentials, replacing the placeholder values.
 
 3.  **Run the Generator:**
     Execute the generator script from the command line, providing a prompt:

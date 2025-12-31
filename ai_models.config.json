@@ -1,0 +1,14 @@
+{
+  "base_url": "https://api.openai.com/v1",
+  "primary_model": "gpt-4",
+  "secondary_models": [],
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "max_tokens": 2000,
+  "model_routing": {
+    "intent_recognition": "primary_model",
+    "code_generation": "primary_model", 
+    "validation": "primary_model"
+  },
+  "notes": "Leave secondary_models as [] if single model. User requirement auto-detects multi-model needs."
+}

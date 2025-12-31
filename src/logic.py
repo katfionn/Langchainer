@@ -8,33 +8,24 @@ def extract_python_code(response_text: str) -> str:
     Extracts the Python code block from the LLM's response.
     Handles responses with or without markdown fences and extra text.
     """
-    # Regex to find a python code block, capturing the content inside
     match = re.search(r"```python\n(.*?)```", response_text, re.DOTALL)
     if match:
         return match.group(1).strip()
-
-    # If no markdown fences are found, assume the whole response is code
-    # but clean up potential conversational text.
-    # A simple heuristic: find the first line that starts with 'import'
     lines = response_text.split('\\n')
     start_index = -1
     for i, line in enumerate(lines):
         if line.strip().startswith('import'):
             start_index = i
             break
-
     if start_index != -1:
         return '\\n'.join(lines[start_index:]).strip()
-
-    # Fallback if no 'import' is found, return the original text stripped.
     return response_text.strip()
 
 def generate_langchain_code(prompt: str) -> str:
     """
     Uses an LLM to generate a single-file LangChain script based on a user's prompt.
     """
-    load_dotenv() # Load environment variables from .env file for the generator itself
-
+    load_dotenv()
     api_base_url = os.getenv("API_BASE_URL")
     api_key = os.getenv("API_KEY")
 
@@ -46,7 +37,6 @@ def generate_langchain_code(prompt: str) -> str:
         api_key=api_key
     )
 
-    # Correct the model name by removing the unsupported tag.
     model_to_use = "google/gemma-3-27b-it"
     print(f"Using model: {model_to_use}")
 
@@ -55,9 +45,9 @@ You are an expert LangChain developer. Your task is to write a complete, single-
 
 **Hard Rules:**
 1.  **Single File:** All code MUST be in a single Python script.
-2.  **dotenv Requirement:** The script MUST use the `python-dotenv` library. The first two lines of executable code must be `from dotenv import load_dotenv` and `load_dotenv()`.
-3.  **API Key Handling:** The script MUST load the API key using `os.getenv()` AFTER calling `load_dotenv()`. The loaded API key must then be passed explicitly to the ChatOpenAI constructor like this: `llm = ChatOpenAI(..., api_key=your_loaded_api_key)`.
-4.  **Configuration:** The script must load its model configuration from a JSON file named `ai_models.config.json`.
+2.  **dotenv Requirement:** The script MUST use `python-dotenv` to load the `OPENAI_API_KEY` from a `.env` file. It must call `load_dotenv()` at the start.
+3.  **JSON Configuration:** The script MUST load all other parameters (base_url, primary_model, temperature) from the `ai_models.config.json` file.
+4.  **Client Initialization:** The script MUST initialize the `ChatOpenAI` client by passing the loaded `base_url`, `api_key`, `model_name`, and `temperature` values to its constructor.
 5.  **Clarity and Runnable:** The code must be clean, well-commented, and ready to run with a main execution block.
 
 **Correct Code Structure Example:**
@@ -68,7 +58,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
-# The first two lines MUST be this to load the .env file.
+# Load environment variables from .env file
 load_dotenv()
 
 def load_config(config_file="ai_models.config.json"):
@@ -83,12 +73,13 @@ def main():
     if not my_api_key:
         raise ValueError("OPENAI_API_KEY not found in .env file")
 
-    # Load model configuration
+    # Load model and endpoint configuration
     config = load_config()
 
-    # Initialize the LLM, passing the API key directly
+    # Initialize the LLM using all settings from the config file and the .env file
     llm = ChatOpenAI(
-        model_name=config.get("primary_model", "gpt-4"),
+        base_url=config.get("base_url"),
+        model_name=config.get("primary_model"),
         temperature=config.get("temperature", 0.7),
         api_key=my_api_key
     )

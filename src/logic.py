@@ -45,10 +45,10 @@ You are an expert LangChain developer. Your task is to write a complete, single-
 
 **Hard Rules:**
 1.  **Single File:** All code MUST be in a single Python script.
-2.  **dotenv Requirement:** The script MUST use `python-dotenv` to load the `OPENAI_API_KEY` from a `.env` file. It must call `load_dotenv()` at the start.
-3.  **JSON Configuration:** The script MUST load all other parameters (base_url, primary_model, temperature) from the `ai_models.config.json` file.
-4.  **Client Initialization:** The script MUST initialize the `ChatOpenAI` client by passing the loaded `base_url`, `api_key`, `model_name`, and `temperature` values to its constructor.
-5.  **Clarity and Runnable:** The code must be clean, well-commented, and ready to run with a main execution block.
+2.  **dotenv Requirement:** The script MUST use `python-dotenv` to load the `OPENAI_API_KEY` from a `.env` file.
+3.  **JSON Configuration:** The script MUST load all other parameters (`base_url`, `primary_model`, `temperature`, `top_p`, `max_tokens`) from `ai_models.config.json`.
+4.  **Client Initialization:** The `ChatOpenAI` client MUST be initialized using all the loaded parameters from both the `.env` and `.json` files.
+5.  **Clarity and Runnable:** The code must be clean, well-commented, and ready to run.
 
 **Correct Code Structure Example:**
 ```python
@@ -81,6 +81,8 @@ def main():
         base_url=config.get("base_url"),
         model_name=config.get("primary_model"),
         temperature=config.get("temperature", 0.7),
+        top_p=config.get("top_p", 0.9),
+        max_tokens=config.get("max_tokens", 2000),
         api_key=my_api_key
     )
 

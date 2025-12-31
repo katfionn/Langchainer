@@ -1,27 +1,11 @@
 import argparse
-import json
 from logic import generate_langchain_code
 from writer import write_project_files
 
 def get_static_files_content():
     """
-    Defines the static content for the config, requirements, and README files.
+    Defines the static content for the requirements and README files.
     """
-    config_template = {
-        "base_url": "https://api.openai.com/v1",
-        "primary_model": "gpt-4",
-        "secondary_models": [],
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "max_tokens": 2000,
-        "model_routing": {
-            "intent_recognition": "primary_model",
-            "code_generation": "primary_model",
-            "validation": "primary_model"
-        },
-        "notes": "Leave secondary_models as [] if single model. User requirement auto-detects multi-model needs."
-    }
-
     requirements_content = """langchain
 langchain-openai
 python-dotenv
@@ -43,32 +27,32 @@ pip install -r requirements.txt
 
 ### b. Set Up Environment Variables
 
-This LangChain application requires an API key to connect to the AI model provider.
+This LangChain application gets all of its configuration from a `.env` file.
 
 1.  Create a file named `.env` in this directory.
-2.  Add your API key to this file. For example, if you are using OpenAI, the file should contain:
+2.  Add your configuration to this file. See the example below for the required variables.
 
     ```
+    # --- Required ---
     OPENAI_API_KEY="your_api_key_here"
+
+    # --- Optional (defaults are provided in the script) ---
+    API_BASE_URL="https://api.openai.com/v1"
+    PRIMARY_MODEL="gpt-4"
+    TEMPERATURE=0.7
+    TOP_P=0.9
+    MAX_TOKENS=2000
     ```
-    *Note: The script will automatically load this `.env` file.*
 
-## 2. Configure Your AI Model
-
-The file `ai_models.config.json` controls which model the application uses and its settings (like temperature). You can edit this file to change the model or its parameters. The default is set to `gpt-4`.
-
-## 3. Run the Application
+## 2. Run the Application
 
 Once the setup is complete, you can run the LangChain workflow with the following command:
 
 ```bash
 python main_langchain_flow.py
 ```
-
-Feel free to modify the `main_langchain_flow.py` script to customize the logic to your needs.
 """
-    # Ensure there's a single trailing newline on the requirements content
-    return config_template, requirements_content.strip() + '\n', readme_content
+    return requirements_content.strip() + '\\n', readme_content
 
 def main():
     """
@@ -84,12 +68,11 @@ def main():
     main_flow_code = generate_langchain_code(args.prompt)
 
     # 2. Get the content for the static files
-    config, requirements, readme = get_static_files_content()
+    requirements, readme = get_static_files_content()
 
     # 3. Write all the files to the ./dist directory
     write_project_files(
         main_flow_code=main_flow_code,
-        config=config,
         requirements=requirements,
         readme=readme
     )

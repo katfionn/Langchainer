@@ -1,7 +1,6 @@
 import os
-import json
 
-def write_project_files(main_flow_code: str, config: dict, requirements: str, readme: str, output_dir: str = "dist"):
+def write_project_files(main_flow_code: str, requirements: str, readme: str, output_dir: str = "dist"):
     """
     Creates the output directory and writes all the generated project files.
     """
@@ -10,7 +9,6 @@ def write_project_files(main_flow_code: str, config: dict, requirements: str, re
 
     # Define file paths
     main_flow_path = os.path.join(output_dir, "main_langchain_flow.py")
-    config_path = os.path.join(output_dir, "ai_models.config.json")
     requirements_path = os.path.join(output_dir, "requirements.txt")
     readme_path = os.path.join(output_dir, "README.md")
 
@@ -20,14 +18,6 @@ def write_project_files(main_flow_code: str, config: dict, requirements: str, re
             f.write(main_flow_code)
     except IOError as e:
         print(f"Error writing main flow file: {e}")
-        return
-
-    # Write the config template file with a proper trailing newline
-    try:
-        with open(config_path, "w") as f:
-            f.write(json.dumps(config, indent=2) + "\n")
-    except IOError as e:
-        print(f"Error writing config file: {e}")
         return
 
     # Write the requirements file

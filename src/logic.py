@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 def extract_python_code(response_text: str) -> str:
     """
     Extracts the Python code block from the LLM's response.
-    Handles responses with or without markdown fences and extra text.
     """
     match = re.search(r"```python\n(.*?)```", response_text, re.DOTALL)
     if match:
@@ -45,48 +44,45 @@ You are an expert LangChain developer. Your task is to write a complete, single-
 
 **Hard Rules:**
 1.  **Single File:** All code MUST be in a single Python script.
-2.  **dotenv Requirement:** The script MUST use `python-dotenv` to load the `OPENAI_API_KEY` from a `.env` file.
-3.  **JSON Configuration:** The script MUST load all other parameters (`base_url`, `primary_model`, `temperature`, `top_p`, `max_tokens`) from `ai_models.config.json`.
-4.  **Client Initialization:** The `ChatOpenAI` client MUST be initialized using all the loaded parameters from both the `.env` and `.json` files.
+2.  **.env Configuration ONLY:** The script MUST get ALL of its configuration (API key, base URL, model name, temperature, etc.) from environment variables. It MUST NOT use any other configuration files like JSON or YAML.
+3.  **dotenv Requirement:** The script MUST use the `python-dotenv` library. It must call `load_dotenv()` at the very beginning of the script.
+4.  **Client Initialization:** The `ChatOpenAI` client MUST be initialized using all the loaded environment variables. It's important to handle type casting for numeric values like temperature (float) and max_tokens (int). Provide sensible defaults.
 5.  **Clarity and Runnable:** The code must be clean, well-commented, and ready to run.
 
 **Correct Code Structure Example:**
 ```python
 import os
-import json
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
-# Load environment variables from .env file
+# Load all environment variables from .env file
 load_dotenv()
-
-def load_config(config_file="ai_models.config.json"):
-    \"\"\"Loads the model configuration from a JSON file.\"\"\"
-    with open(config_file, 'r') as f:
-        return json.load(f)
 
 def main():
     \"\"\"The main execution function.\"\"\"
-    # Load the API key from the environment
-    my_api_key = os.getenv("OPENAI_API_KEY")
-    if not my_api_key:
+    # --- 1. Load ALL configuration from environment variables ---
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+    model_name = os.getenv("PRIMARY_MODEL", "gpt-4")
+    temperature = float(os.getenv("TEMPERATURE", 0.7))
+    top_p = float(os.getenv("TOP_P", 0.9))
+    max_tokens = int(os.getenv("MAX_TOKENS", 2000))
+
+    if not api_key:
         raise ValueError("OPENAI_API_KEY not found in .env file")
 
-    # Load model and endpoint configuration
-    config = load_config()
-
-    # Initialize the LLM using all settings from the config file and the .env file
+    # --- 2. Initialize the LLM client with loaded settings ---
     llm = ChatOpenAI(
-        base_url=config.get("base_url"),
-        model_name=config.get("primary_model"),
-        temperature=config.get("temperature", 0.7),
-        top_p=config.get("top_p", 0.9),
-        max_tokens=config.get("max_tokens", 2000),
-        api_key=my_api_key
+        base_url=base_url,
+        model_name=model_name,
+        temperature=temperature,
+        top_p=top_p,
+        max_tokens=max_tokens,
+        api_key=api_key
     )
 
-    # --- LangChain implementation based on the user's prompt goes here ---
+    # --- 3. LangChain implementation based on the user's prompt goes here ---
     prompt_template = ChatPromptTemplate.from_template("Translate 'hello world' to French.")
     chain = prompt_template | llm
     result = chain.invoke({})

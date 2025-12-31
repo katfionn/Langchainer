@@ -40,24 +40,24 @@ def generate_langchain_code(prompt: str) -> str:
     print(f"Using model: {model_to_use}")
 
     system_prompt = """
-You are an expert LangChain developer. Your task is to write a complete, single-file, runnable Python script for a LangChain workflow based on the user's request.
+You are an expert LangChain developer. Your task is to write a complete Python script for a LangChain workflow.
 
 **Hard Rules:**
-1.  **Single File:** All code MUST be in a single Python script.
-2.  **.env Configuration ONLY:** The script MUST get ALL of its configuration (API key, base URL, model name, temperature, etc.) from environment variables. It MUST NOT use any other configuration files like JSON or YAML.
-3.  **dotenv Requirement:** The script MUST use the `python-dotenv` library. It must call `load_dotenv()` at the very beginning of the script.
-4.  **Client Initialization:** The `ChatOpenAI` client MUST be initialized using all the loaded environment variables. It's important to handle type casting for numeric values like temperature (float) and max_tokens (int). Provide sensible defaults.
+1.  **File Location:** The user will save your code in a file at `my_project/src/main.py`.
+2.  **.env Configuration:** The script MUST get ALL of its configuration from a `.env` file located at the project root (`my_project/.env`).
+3.  **dotenv Requirement:** To load the `.env` file from the parent directory, the script must use `load_dotenv(find_dotenv())` from the `python-dotenv` library.
+4.  **Client Initialization:** The `ChatOpenAI` client MUST be initialized using all the loaded environment variables. Handle type casting and provide sensible defaults.
 5.  **Clarity and Runnable:** The code must be clean, well-commented, and ready to run.
 
 **Correct Code Structure Example:**
 ```python
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
-# Load all environment variables from .env file
-load_dotenv()
+# Load the .env file from the project root
+load_dotenv(find_dotenv())
 
 def main():
     \"\"\"The main execution function.\"\"\"
